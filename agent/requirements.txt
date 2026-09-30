@@ -1,0 +1,2 @@
+# Packaged for Linux arm64 / Python 3.13 by scripts/build_agent.sh
+boto3>=1.40.50

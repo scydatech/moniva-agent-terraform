@@ -1,0 +1,13 @@
+aws_region  = "eu-central-1"
+client      = "moniva"
+environment = "dev"
+
+cognito_callback_urls = ["http://localhost:3000/"]
+cognito_logout_urls   = ["http://localhost:3000/"]
+allowed_cors_origins  = ["http://localhost:3000"]
+
+alarm_email = "platform-alerts@moniva.example"
+
+# Account-wide setting: enable in only one stack per account and region.
+enable_model_invocation_logging = false
+enable_cloudtrail_data_events   = true
