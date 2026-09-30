@@ -19,7 +19,7 @@ Typical cases:
 ```
 Staff ─► API Gateway (Cognito sign-in) ─► API Lambda ─► creates investigation (DynamoDB), returns 202
                                                └──► Worker Lambda ─► AgentCore Runtime: investigation agent
-                                                                        ├─ Input guardrail: block action requests
+                                                                        ├─ Action check + input guardrail: decline action commands, block prompt attacks
                                                                         ├─ AgentCore Memory: earlier turns of this case
                                                                         ├─ Claude Sonnet 4.5: plan, call tools, write summary
                                                                         │    ├─ AgentCore Gateway (MCP, IAM) ─► Tools Lambda ─► transactions / accounts
@@ -45,7 +45,7 @@ Investigations run in the background because they can take longer than an API re
 | **Amazon Bedrock – Claude Sonnet 4.5** | Plans the investigation, decides which tools to call, reasons over the evidence and writes the case summary. |
 | **Amazon Bedrock Knowledge Bases** | Searches Moniva's approved operational procedures so recommendations follow Moniva's own rules. |
 | **Amazon Titan Text Embeddings V2** and **Amazon S3 Vectors** | Make the procedures searchable by meaning, at low cost. |
-| **Amazon Bedrock Guardrails** | Blocks requests for the agent to take account or payment actions, filters harmful content and prompt attacks, and masks sensitive data in summaries. |
+| **Amazon Bedrock Guardrails** | Filters prompt attacks and harmful content in staff requests, and masks sensitive data (card numbers, PINs, BVN/NIN) in case summaries. Requests that instruct the agent to reverse, refund or freeze are declined by the agent itself, which has no tools that can take such actions. |
 | **AWS Lambda** | Runs the read-only tools (the controlled data layer), the API, the background investigation worker and the document sync. |
 | **Amazon DynamoDB** | Holds sample transaction and account data for the tools, and the investigation cases with their summaries and evidence. |
 | **Amazon API Gateway** | Provides the secure API and rejects requests without a valid sign-in token. |
@@ -55,7 +55,7 @@ Investigations run in the background because they can take longer than an API re
 | **AWS KMS** | Encrypts documents, tables, logs and audit records with a Moniva-managed key. |
 | **AWS IAM** | Gives every component only the permissions it needs; the tools can only read. |
 | **Amazon CloudWatch**, **Amazon SNS**, **AWS X-Ray** | Logs, alarms (failed investigations, blocked requests, errors) with email alerts, and request tracing. |
-| **AWS CloudTrail** | Records every read of transaction and account data, procedure documents and knowledge base searches. |
+| **AWS CloudTrail** | Records account management activity and every read of transaction and account data, procedure documents and knowledge base searches. |
 
 All resources are in **eu-central-1 (Frankfurt)**, and every resource name ends in the client name (for example `transaction-tools-dev-moniva`).
 
